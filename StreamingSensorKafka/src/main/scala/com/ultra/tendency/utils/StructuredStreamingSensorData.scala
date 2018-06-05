@@ -10,7 +10,7 @@ import org.apache.spark.streaming.Seconds
 
 object StructuredStreamingSensorData extends App {
 
-  val sparkProps = StreamingSettings.sparStreaming
+  val sparkProps = StreamingSettings.sparkStreaming
   val kafkaProps = StreamingSettings.KafkaConsumer
   val cassandraProps = StreamingSettings.cassandra
 

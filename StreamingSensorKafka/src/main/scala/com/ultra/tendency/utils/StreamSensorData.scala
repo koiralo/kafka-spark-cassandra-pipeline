@@ -17,14 +17,15 @@ object StreamSensorData extends App {
 
   val kafkaProps = StreamingSettings.KafkaConsumer
   val cassandraProps = StreamingSettings.cassandra
+  val sparkProps = StreamingSettings.sparkStreaming
 
 
   //create an entry point for spark streaming
 
   val spark = SparkSession
     .builder()
-    .appName("view-deployer")
-    .master("local[*]")
+    .appName(sparkProps.name)
+    .master(sparkProps.master)
     .getOrCreate()
 
   import spark.implicits._
