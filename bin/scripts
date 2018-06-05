@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+
+Create Kafka topic
+kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic topic-name
+
+Create keyspace
+CREATE KEYSPACE "iotdata" WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1} ;
+
+Create Table
+
+CREATE TABLE IF NOT EXISTS sensor (
+              "deviceId" text ,
+              "latitude" float,
+              "longitude" float,
+              "temperature" int,
+              "time" timestamp,
+              PRIMARY KEY (("deviceId", "time"))
+              );
+

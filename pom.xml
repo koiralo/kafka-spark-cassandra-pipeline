@@ -11,6 +11,7 @@
     <modules>
         <module>SensorProducer</module>
         <module>StreamingSensorKafka</module>
+        <module>SparkBatchJobs</module>
     </modules>
 
     <properties>
