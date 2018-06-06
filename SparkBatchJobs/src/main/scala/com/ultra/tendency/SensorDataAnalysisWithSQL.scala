@@ -1,12 +1,11 @@
 package com.ultra.tendency
 
+import com.ultra.tendency.domain.SensorData
 import config.BatchJobsSetting
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.{SQLContext, SparkSession}
-import com.ultra.tendency.AnalysisFunctions._
-import com.ultra.tendency.domain.SensorData
 
-object SensorDataAnalysis extends App {
+object SensorDataAnalysisWithSQL extends App {
 
   val cassandraProps = BatchJobsSetting.cassandra
   val sparkProps = BatchJobsSetting.spark
@@ -40,29 +39,24 @@ object SensorDataAnalysis extends App {
   val keyspace = cassandraProps.keyspace
 
 
-  //load data from cassanda
-  val data = spark.read.format(format)
-    .options(Map("table" -> table, "keyspace" -> keyspace))
-    .load()
-    .as[SensorData]
-    .persist()
+  val ddl =
+    """CREATE TEMPORARY VIEW sensor
+     USING org.apache.spark.sql.cassandra
+     OPTIONS (
+     table "sensor",
+     keyspace "iotdata",
+     pushdown "true")"""
 
 
-  val maxTempDF = maxTempPerDevice(data, sqlContext)
+  spark.sql(ddl)
 
-  maxTempDF.show(false)
+  spark.sql("SELECT sensor.deviceId, max(sensor.temperature) AS maxTemp FROM sensor group by sensor.deviceId").show(false)
+
+  spark.sql("SELECT sensor.deviceId, count(sensor.temperature) AS count FROM sensor group by sensor.deviceId").show(false)
+
+  spark.sql("SELECT * FROM sensor where CAST(sensor.time AS DATE) = '2018-06-05' ").show(false)
 
 
-  val quantityPerDevice = countPerDevice(data, sqlContext)
-
-  quantityPerDevice.show(false)
-
-
-  val givenDay = "2018-06-05"
-
-  val maxTempDayDF = maxTempOnGivenDay(data, sqlContext, givenDay)
-
-  maxTempDayDF.show(false)
-
+  spark.close()
 
 }

@@ -3,7 +3,7 @@ package com.ultra.tendency
 import com.ultra.tendency.domain.SensorData
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.{DataFrame, Dataset, SQLContext}
-import org.apache.spark.sql.functions.{col, max, min}
+import org.apache.spark.sql.functions.{count, max, min}
 import org.apache.spark.sql.types.DateType
 
 object AnalysisFunctions extends Serializable {
@@ -27,6 +27,16 @@ object AnalysisFunctions extends Serializable {
       .agg(
         max($"temperature").as("maxTemperature"),
         min($"temperature").as("maxTemperature")
+      )
+  }
+
+
+  def countPerDevice(ds: Dataset[SensorData], sqlContext: SQLContext): DataFrame ={
+    import sqlContext.implicits._
+
+    ds.groupBy($"deviceId")
+      .agg(
+        count($"temperature").as("count")
       )
   }
 
